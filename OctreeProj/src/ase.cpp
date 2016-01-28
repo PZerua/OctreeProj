@@ -1,14 +1,4 @@
 #include "ase.h"
-#include "text.h"
-
-#include <cmath>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +21,7 @@ bool CASEModel::load(const char* filename)
 	n = t.GetInt();
 	m_triangles.resize(n);
 
-	int i;
-	for (i=0; i<m_vertices.size(); i++)
+	for (unsigned i=0; i<m_vertices.size(); i++)
 	{
 		t.Seek("*MESH_VERTEX");
 		if (t.GetInt()==i)
@@ -47,7 +36,7 @@ bool CASEModel::load(const char* filename)
 			return false;
 	}
 
-	for (i=0;i<m_triangles.size(); i++)
+	for (unsigned i=0;i<m_triangles.size(); i++)
 	{
 		t.Seek("*MESH_FACE");
 		if (t.GetInt()==i)
@@ -69,8 +58,7 @@ void CASEModel::render() const
 	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 	glBegin(GL_TRIANGLES);
-	int i;
-	for (i=0;i<m_triangles.size();i++)
+	for (unsigned i=0;i<m_triangles.size();i++)
 	{
 		const triangle & t = m_triangles[i];
 /*
@@ -88,11 +76,14 @@ void CASEModel::render() const
 		glVertex3fv(m_vertices[t.c]);
 	}
 	glEnd();
+
+	_octree->renderBox();
 }
 
-void CASEModel::loadMinMax()
+vector3f *CASEModel::loadMinMax()
 {
-	
+	static vector3f minmax[2];
+
 	auto min_max_X = minmax_element(m_vertices.begin(), m_vertices.end(),
 		[](vector3f left, vector3f right) {return left.x < right.x; });
 	auto min_max_Y = minmax_element(m_vertices.begin(), m_vertices.end(),
@@ -100,62 +91,25 @@ void CASEModel::loadMinMax()
 	auto min_max_Z = minmax_element(m_vertices.begin(), m_vertices.end(),
 		[](vector3f left, vector3f right) {return left.z < right.z; });
 
-	_maxBB.x = min_max_X.second->x;
-	_maxBB.y = min_max_Y.second->y;
-	_maxBB.z = min_max_Z.second->z;
+	minmax[1].x = min_max_X.second->x;
+	minmax[1].y = min_max_Y.second->y;
+	minmax[1].z = min_max_Z.second->z;
 
-	_minBB.x = min_max_X.first->x;
-	_minBB.y = min_max_Y.first->y;
-	_minBB.z = min_max_Z.first->z;
+	minmax[0].x = min_max_X.first->x;
+	minmax[0].y = min_max_Y.first->y;
+	minmax[0].z = min_max_Z.first->z;
 
-	cout << "MAXBB: " << _maxBB.x << ", " << _maxBB.y << ", " << _maxBB.z << endl;
-	cout << "MINBB: " << _minBB.x << ", " << _minBB.y << ", " << _minBB.z << endl;
+	cout << "MAXBB: " << minmax[1].x << ", " << minmax[1].y << ", " << minmax[1].z << endl;
+	cout << "MINBB: " << minmax[0].x << ", " << minmax[0].y << ", " << minmax[0].z << endl;
+
+	return minmax;
 }
 
-void CASEModel::renderBB()
+void CASEModel::createOctree()
 {
-	glBegin(GL_LINES);
-	for (int i = 0; i<24; i++)
-	{
-		//FLOOR
-		glVertex3f(_minBB.x, _minBB.y, _minBB.z);
-		glVertex3f(_maxBB.x, _minBB.y, _minBB.z);
-
-		glVertex3f(_maxBB.x, _minBB.y, _minBB.z);
-		glVertex3f(_maxBB.x, _maxBB.y, _minBB.z);
-
-		glVertex3f(_maxBB.x, _maxBB.y, _minBB.z);
-		glVertex3f(_minBB.x, _maxBB.y, _minBB.z);
-
-		glVertex3f(_minBB.x, _maxBB.y, _minBB.z);
-		glVertex3f(_minBB.x, _minBB.y, _minBB.z);
-
-		//COLUMNS
-		glVertex3f(_minBB.x, _minBB.y, _minBB.z);
-		glVertex3f(_minBB.x, _minBB.y, _maxBB.z);
-
-		glVertex3f(_maxBB.x, _minBB.y, _minBB.z);
-		glVertex3f(_maxBB.x, _minBB.y, _maxBB.z);
-
-		glVertex3f(_maxBB.x, _maxBB.y, _minBB.z);
-		glVertex3f(_maxBB.x, _maxBB.y, _maxBB.z);
-
-		glVertex3f(_minBB.x, _maxBB.y, _minBB.z);
-		glVertex3f(_minBB.x, _maxBB.y, _maxBB.z);
-
-		//ROOF
-		glVertex3f(_minBB.x, _minBB.y, _maxBB.z);
-		glVertex3f(_maxBB.x, _minBB.y, _maxBB.z);
-
-		glVertex3f(_maxBB.x, _minBB.y, _maxBB.z);
-		glVertex3f(_maxBB.x, _maxBB.y, _maxBB.z);
-
-		glVertex3f(_maxBB.x, _maxBB.y, _maxBB.z);
-		glVertex3f(_minBB.x, _maxBB.y, _maxBB.z);
-
-		glVertex3f(_minBB.x, _maxBB.y, _maxBB.z);
-		glVertex3f(_minBB.x, _minBB.y, _maxBB.z);
-	}
-	glEnd();
-
+	vector3f hDimension; // TODO
+	vector3f *values = loadMinMax();
+	vector3f origin = (values[0] + values[1]) / 2.0f;
+	_octree = new Octree(origin, hDimension);
+	_octree->createCBox(values[0], values[1]);
 }

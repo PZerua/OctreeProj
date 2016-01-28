@@ -135,6 +135,17 @@ vector3f vector3f::operator / ( const vector3f &other )
     return vResult;
 }
 
+vector3f vector3f::operator / (const float &value)
+{
+	vector3f vResult(0.0f, 0.0f, 0.0f);
+
+	vResult.x = x / value;
+	vResult.y = y / value;
+	vResult.z = z / value;
+
+	return vResult;
+}
+
 vector3f& vector3f::operator = ( const vector3f &other )
 {
 	x = other.x;

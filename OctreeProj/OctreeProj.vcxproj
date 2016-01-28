@@ -146,13 +146,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ase.cpp" />
+    <ClCompile Include="src\ContainerBox.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Octree.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\vector3f.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header\ase.h" />
+    <ClInclude Include="header\ContainerBox.h" />
+    <ClInclude Include="header\header.h" />
     <ClInclude Include="header\matrix4x4f.h" />
+    <ClInclude Include="header\Octree.h" />
     <ClInclude Include="header\text.h" />
     <ClInclude Include="header\vector3f.h" />
   </ItemGroup>

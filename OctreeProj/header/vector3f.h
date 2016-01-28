@@ -35,7 +35,8 @@ public:
     vector3f operator + (const vector3f &other);
     vector3f operator - (const vector3f &other);
     vector3f operator * (const vector3f &other);
-		vector3f operator / (const vector3f &other);
+	vector3f operator / (const vector3f &other);
+	vector3f operator / (const float &value);
 
     vector3f operator * (const float scalar);
     friend vector3f operator * (const float scalar, const vector3f &other);

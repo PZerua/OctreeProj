@@ -1,19 +1,7 @@
-#include <iostream>
-
-// global includes
-#include <GL/glut.h>
-
-#include <algorithm>
-
-// local includes
+#include "header.h"
 #include "ase.h"
 #include "vector3f.h"
 #include "matrix4x4f.h"
-
-// global libs
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glu32.lib")
-#pragma comment(lib, "glut32.lib")
 
 // global variables
 vector3f g_vEye(0,1,-5);
@@ -27,18 +15,13 @@ int g_width, g_height;
 // the mesh model
 CASEModel g_model;
 
-// local defines
-#define LEFTMOUSE 0
-#define MIDDLEMOUSE 1
-#define RIGHTMOUSE 2
-
 //2k8
 
 void drawString(int x, int y, const char* string)
 {
 	int i, len;
 	glRasterPos2f(x, y);
-	glColor3f(1,1,1);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	len = strlen (string);
 	for (i=0;i<len;i++)
 	{
@@ -54,7 +37,7 @@ void help()
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluOrtho2D(0,1000,0,1000);
+	gluOrtho2D(0, 1000, 0, 1000);
 
 	drawString(690,10,"Press UP/DOWN/LEFT/RIGHT to navigate");
 	drawString(690,40,"Press LEFT BUTTON to perform looking");
@@ -113,7 +96,6 @@ void display(void)
 
 	// draw 3d model
 	g_model.render();
-	g_model.renderBB();
 	// ...
 	//glutWireCube(5);
 	// dibuixar un cub on cada banda té 1 de llarg
@@ -228,7 +210,7 @@ int main(int arg, char** argv)
 	// load a model
 	//g_model.load("data\\teapot.ase");
 	g_model.load("data/knot.ase");
-	g_model.loadMinMax();
+	g_model.createOctree();
 	//g_model.load("data\\terrain.ase");
 
 	glutSwapBuffers();
