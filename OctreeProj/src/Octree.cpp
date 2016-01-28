@@ -19,9 +19,15 @@ bool Octree::isLeaf()
 	return true;
 }
 
-void Octree::insert(vector3f *data)
+void Octree::insert(triangle *triangles)
 {
-	_data = data;
+	_triangles = triangles;
+
+	/*
+	cout << _data[0].a << " " << _data[0].b << " " << _data[0].c << endl;
+	cout << _data[1].a << " " << _data[1].b << " " << _data[1].c << endl;
+	cout << _data[2].a << " " << _data[2].b << " " << _data[2].c << endl;
+	*/
 }
 
 void Octree::renderBox()
@@ -33,4 +39,10 @@ void Octree::renderBox()
 void Octree::createCBox(const vector3f &minCorner, const vector3f &maxCorner)
 {
 	_box = new ContainerBox(minCorner, maxCorner);
+}
+
+void Octree::makeOctree(vector3f *vertices) 
+{
+	// TODO
+
 }

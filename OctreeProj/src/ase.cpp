@@ -61,7 +61,7 @@ void CASEModel::render() const
 	for (unsigned i=0;i<m_triangles.size();i++)
 	{
 		const triangle & t = m_triangles[i];
-/*
+		/*
 		vector3 normal;
 		normal = cross(
 			m_vertices[t.b] - m_vertices[t.a],
@@ -91,25 +91,25 @@ vector3f *CASEModel::loadMinMax()
 	auto min_max_Z = minmax_element(m_vertices.begin(), m_vertices.end(),
 		[](vector3f left, vector3f right) {return left.z < right.z; });
 
-	minmax[1].x = min_max_X.second->x;
-	minmax[1].y = min_max_Y.second->y;
-	minmax[1].z = min_max_Z.second->z;
-
 	minmax[0].x = min_max_X.first->x;
 	minmax[0].y = min_max_Y.first->y;
 	minmax[0].z = min_max_Z.first->z;
 
-	cout << "MAXBB: " << minmax[1].x << ", " << minmax[1].y << ", " << minmax[1].z << endl;
-	cout << "MINBB: " << minmax[0].x << ", " << minmax[0].y << ", " << minmax[0].z << endl;
+	minmax[1].x = min_max_X.second->x;
+	minmax[1].y = min_max_Y.second->y;
+	minmax[1].z = min_max_Z.second->z;
 
 	return minmax;
 }
 
 void CASEModel::createOctree()
 {
-	vector3f hDimension; // TODO
-	vector3f *values = loadMinMax();
-	vector3f origin = (values[0] + values[1]) / 2.0f;
+	vector3f *minmax = loadMinMax();
+	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, minmax[1].y - minmax[0].y, minmax[1].z - minmax[0].z);
+	vector3f origin = (minmax[0] + minmax[1]) / 2.0f;
+
 	_octree = new Octree(origin, hDimension);
-	_octree->createCBox(values[0], values[1]);
+	_octree->createCBox(minmax[0], minmax[1]);
+	_octree->insert(m_triangles.data());
+	_octree->makeOctree(m_vertices.data());
 }

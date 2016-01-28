@@ -10,15 +10,16 @@ public:
 	~Octree();
 	int getBoxContainsPoint(const vector3f &point);
 	bool isLeaf();
-	void insert(vector3f *data);
+	void insert(triangle *triangles);
 	void split();
 	void createCBox(const vector3f &minCorner, const vector3f &maxCorner);
 	void renderBox();
+	void makeOctree(vector3f *vertices);
 
 private:
 	vector3f _origin;
 	vector3f _hDimention;
-	vector3f *_data;
+	triangle *_triangles;
 	Octree *_children[8];
 	ContainerBox *_box;
 };
