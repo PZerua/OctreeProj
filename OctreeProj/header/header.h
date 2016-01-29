@@ -9,11 +9,6 @@
 #include <cmath>
 #include <vector>
 
-// global libs
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glu32.lib")
-#pragma comment(lib, "glut32.lib")
-
 // local defines
 #define LEFTMOUSE 0
 #define MIDDLEMOUSE 1

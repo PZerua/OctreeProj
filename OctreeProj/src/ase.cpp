@@ -105,7 +105,7 @@ vector3f *CASEModel::loadMinMax()
 void CASEModel::createOctree()
 {
 	vector3f *minmax = loadMinMax();
-	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, minmax[1].y - minmax[0].y, minmax[1].z - minmax[0].z);
+	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, (minmax[1].y - minmax[0].y) / 2, (minmax[1].z - minmax[0].z) / 2);
 	vector3f origin = (minmax[0] + minmax[1]) / 2.0f;
 
 	_octree = new Octree(origin, hDimension);
