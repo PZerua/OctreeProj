@@ -12,12 +12,12 @@ ContainerBox::~ContainerBox()
 
 }
 
-void ContainerBox::render()
+void ContainerBox::render(vector3f color)
 {
 	glBegin(GL_LINES);
 
 	// Set Color
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(color.x, color.y, color.z);
 
 	//cout << "MAX: " << _maxCorner.x << " " << _maxCorner.y << " " << _maxCorner.z << endl;
 	//cout << "MIN: " << _minCorner.x << " " << _minCorner.y << " " << _minCorner.z << endl;

@@ -25,12 +25,13 @@ public:
 
 	// gl render
 	void render() const;
+	Octree * getOctree();
 
 protected:
 	std::vector<vector3f> m_vertices;
 	std::vector<triangle> m_triangles;
 	Octree *_octree;
-
+	Octree * getOctree(const int &level, const int &depth);
 };
 
 

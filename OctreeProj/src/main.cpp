@@ -14,6 +14,7 @@ int g_width, g_height;
 
 // the mesh model
 CASEModel g_model;
+Octree *octr;
 
 //2k8
 
@@ -96,6 +97,8 @@ void display(void)
 
 	// draw 3d model
 	g_model.render();
+	if (octr != NULL)
+		octr->renderBox(vector3f(0.0, 1.0, 0.0));
 	// ...
 	//glutWireCube(5);
 	// dibuixar un cub on cada banda té 1 de llarg
@@ -119,8 +122,30 @@ void parsekey(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
+		//Tecla ESC
 		case 27: exit(0); break;
+		//Tecla Enter
 		case 13: break;
+		/*
+		//Teclas de 0 a 7
+		case 48: break;
+		case 49: break;
+		case 50: break;
+		case 51: break;
+		case 52: break;
+		case 53: break;
+		case 54: break;
+		case 55: break;*/
+	}
+	if (key >= 48 & key <= 55) {
+		/*for
+			if
+				=true
+			else
+				=false*/
+		cout << "KEY: " << (key - 48) << endl;
+		octr = octr->getChild(key - 48);
+		//cout << "Octree: " << oct. << endl;
 	}
 }
 
@@ -211,6 +236,7 @@ int main(int arg, char** argv)
 	//g_model.load("data\\teapot.ase");
 	g_model.load("data/knot.ase");
 	g_model.createOctree();
+	octr = g_model.getOctree();
 	//g_model.load("data\\terrain.ase");
 
 	glutSwapBuffers();

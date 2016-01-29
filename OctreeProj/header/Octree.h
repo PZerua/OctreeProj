@@ -12,9 +12,11 @@ public:
 	bool isLeaf();
 	void insert(vector<triangle> triangles);
 	void createCBox(const vector3f &minCorner, const vector3f &maxCorner);
-	void renderBox();
+	void renderBox(vector3f color);
 	void makeOctree(const vector<vector3f> &vertices);
 	short getOctant(const vector3f &vertex);
+	Octree * getChild(int i);
+	
 
 private:
 	vector3f _origin;

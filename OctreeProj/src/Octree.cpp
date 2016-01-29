@@ -32,14 +32,17 @@ void Octree::insert(vector<triangle> triangles)
 	*/
 }
 
-void Octree::renderBox()
+void Octree::renderBox(vector3f color)
 {
-	_box->render();
+	/*
+	_box->render( color );
 	for (int i = 0; i < 8; i++)
 	{
 		if (_children[i] != NULL)
-			_children[i]->renderBox();
+			_children[i]->renderBox(color + vector3f(0.1, -0.2, 0.1));
 	}
+	*/
+	_box->render(color);
 }
 
 void Octree::createCBox(const vector3f &minCorner, const vector3f &maxCorner)
@@ -94,3 +97,10 @@ short Octree::getOctant(const vector3f &vertex)
 	if (vertex.z >= _origin.z) position |= 0x01;
 	return position;
 }
+
+
+Octree * Octree::getChild(int i) 
+{
+	return _children[i];
+}
+

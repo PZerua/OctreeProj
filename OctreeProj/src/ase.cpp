@@ -76,8 +76,6 @@ void CASEModel::render() const
 		glVertex3fv(m_vertices[t.c]);
 	}
 	glEnd();
-
-	_octree->renderBox();
 }
 
 vector3f *CASEModel::loadMinMax()
@@ -112,4 +110,8 @@ void CASEModel::createOctree()
 	_octree->createCBox(minmax[0], minmax[1]);
 	_octree->insert(m_triangles);
 	_octree->makeOctree(m_vertices);
+}
+
+Octree * CASEModel::getOctree() {
+	return _octree;
 }
