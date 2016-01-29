@@ -1,11 +1,12 @@
 #include "Octree.h"
 
-Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &maxTriangles, const int &density)
+Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &density)
 {
 	_origin = origin;
 	_hDimention = hDimension;
 	_box = NULL;
 	_density = density;
+	_level = level;
 	for (int i = 0; i < 8; i++)
 	{
 		_children[i] = NULL;
@@ -33,8 +34,12 @@ void Octree::insert(vector<triangle> triangles)
 
 void Octree::renderBox()
 {
-	if (_box != NULL)
-		_box->render();
+	_box->render();
+	for (int i = 0; i < 8; i++)
+	{
+		if (_children[i] != NULL)
+			_children[i]->renderBox();
+	}
 }
 
 void Octree::createCBox(const vector3f &minCorner, const vector3f &maxCorner)
@@ -52,23 +57,32 @@ void Octree::makeOctree(const vector<vector3f> &vertices)
 		int position = getOctant(firstVertex);
 		trianglesPerOctant[position].push_back(_triangles[i]);
 	}
-	cout << "LEVEL: " << _level << endl;
-	cout << "TRIANGLES SIZE: " << _triangles.size() << endl;
+	//cout << endl <<  "LEVEL: " << _level << endl;
+	//cout << "TRIANGLES SIZE: " << _triangles.size() << endl << endl;
 	if ((_level + 1 < 8))
 	{
 		int density = 0;
 		for (int i = 0; i < 8; i++)
 		{
 			density = (trianglesPerOctant[i].size() * _density) / _triangles.size();
-			cout << "TRIANGLES PER OCTANT: " << i << " is : " << trianglesPerOctant[i].size() << endl;
-			cout << "density " << (int)density << endl;
-			if (density >= 5)
+			/*cout << "TRIANGLES PER OCTANT: " << i << " is : " << trianglesPerOctant[i].size() << endl;
+			cout << "density " << density << endl;*/
+			if (density >= 1)
 			{
-				//_children[i] = new Octree()
+				//cout << "NEW CHILD" << endl;
+				vector3f newOrigin = _origin;
+				newOrigin.x += _hDimention.x / (i & 0x04 ? 2.0 : -2.0);
+				newOrigin.y += _hDimention.y / (i & 0x02 ? 2.0 : -2.0);
+				newOrigin.z += _hDimention.z / (i & 0x01 ? 2.0 : -2.0);
+				_children[i] = new Octree(newOrigin, _hDimention / 2.0, _level + 1, density);
+				_children[i]->insert(trianglesPerOctant[i]);
+				_children[i]->createCBox(_origin + _hDimention, _origin - _hDimention);
+				_children[i]->makeOctree(vertices);
 			}
 				
 		}
 	}
+	//cout << endl << "Volvemos al padre" << endl;
 	//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 

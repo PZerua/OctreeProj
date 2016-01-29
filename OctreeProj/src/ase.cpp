@@ -108,7 +108,7 @@ void CASEModel::createOctree()
 	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, (minmax[1].y - minmax[0].y) / 2, (minmax[1].z - minmax[0].z) / 2);
 	vector3f origin = (minmax[0] + minmax[1]) / 2.0f;
 
-	_octree = new Octree(origin, hDimension, 0, m_triangles.size() * 0.05, 100);
+	_octree = new Octree(origin, hDimension, 0, 1000);
 	_octree->createCBox(minmax[0], minmax[1]);
 	_octree->insert(m_triangles);
 	_octree->makeOctree(m_vertices);
