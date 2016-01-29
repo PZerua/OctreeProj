@@ -6,20 +6,24 @@
 class Octree
 {
 public:
-	Octree(const vector3f &origin, const vector3f &hDimension);
+	Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &maxTriangles, const int &density);
 	~Octree();
 	int getBoxContainsPoint(const vector3f &point);
 	bool isLeaf();
-	void insert(triangle *triangles);
+	void insert(vector<triangle> triangles);
 	void split();
 	void createCBox(const vector3f &minCorner, const vector3f &maxCorner);
 	void renderBox();
-	void makeOctree(vector3f *vertices);
+	void makeOctree(const vector<vector3f> &vertices);
+	short getOctant(const vector3f &vertex);
 
 private:
 	vector3f _origin;
 	vector3f _hDimention;
-	triangle *_triangles;
+	vector<triangle> _triangles;
 	Octree *_children[8];
 	ContainerBox *_box;
+	int _level;
+	int _maxTriangles;
+	int _density;
 };

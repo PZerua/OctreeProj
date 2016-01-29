@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include <thread>         // std::this_thread::sleep_for
+#include <chrono>         // std::chrono::seconds
 
 // local defines
 #define LEFTMOUSE 0
