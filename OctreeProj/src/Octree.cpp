@@ -44,5 +44,4 @@ void Octree::createCBox(const vector3f &minCorner, const vector3f &maxCorner)
 void Octree::makeOctree(vector3f *vertices) 
 {
 	// TODO
-
 }
