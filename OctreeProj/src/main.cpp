@@ -12,6 +12,11 @@ int g_buttons[3];
 int g_mouse_x,g_mouse_y;
 int g_width, g_height;
 
+bool MOVE_UP = false;
+bool MOVE_DOWN = false;
+bool MOVE_RIGHT = false;
+bool MOVE_LEFT = false;
+
 // the mesh model
 CASEModel g_model;
 Octree *octr;
@@ -53,12 +58,12 @@ void display(void)
 	//glShadeModel(GL_FLAT);
 
 	// setup camera
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity ();
-	gluPerspective(90,1.33,1,200);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(90, 1.33, 1, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
- 
+
 	matrix4x4f view;
 	view.identity();
 
@@ -70,28 +75,28 @@ void display(void)
 	g_vUp = crossProduct(g_vRight, g_vLook);
 	g_vUp.normalize();
 
-	view.m[0] =  g_vRight.x;
-	view.m[1] =  g_vUp.x;
+	view.m[0] = g_vRight.x;
+	view.m[1] = g_vUp.x;
 	view.m[2] = -g_vLook.x;
-	view.m[3] =  0.0f;
+	view.m[3] = 0.0f;
 
-	view.m[4] =  g_vRight.y;
-	view.m[5] =  g_vUp.y;
+	view.m[4] = g_vRight.y;
+	view.m[5] = g_vUp.y;
 	view.m[6] = -g_vLook.y;
-	view.m[7] =  0.0f;
+	view.m[7] = 0.0f;
 
-	view.m[8]  =  g_vRight.z;
-	view.m[9]  =  g_vUp.z;
+	view.m[8] = g_vRight.z;
+	view.m[9] = g_vUp.z;
 	view.m[10] = -g_vLook.z;
-	view.m[11] =  0.0f;
+	view.m[11] = 0.0f;
 
 	view.m[12] = -dotProduct(g_vRight, g_vEye);
 	view.m[13] = -dotProduct(g_vUp, g_vEye);
-	view.m[14] =  dotProduct(g_vLook, g_vEye);
-	view.m[15] =  1.0f;
+	view.m[14] = dotProduct(g_vLook, g_vEye);
+	view.m[15] = 1.0f;
 
 
-	glMultMatrixf( view.m );
+	glMultMatrixf(view.m);
 
 	//render here
 
@@ -104,10 +109,19 @@ void display(void)
 	// dibuixar un cub on cada banda té 1 de llarg
 	//glDisable(GL_LIGHTING);
 	help();
-	
+
 
 	glFlush();
 	glutSwapBuffers();
+
+	if (MOVE_UP)
+		g_vEye += (g_vLook)*0.05f;
+	if (MOVE_DOWN)
+		g_vEye -= (g_vLook)*0.05f;
+	if (MOVE_RIGHT)
+		g_vEye += (g_vRight)*0.05f;
+	if (MOVE_LEFT)
+		g_vEye -= (g_vRight)*0.05f;
 }
 
 void reshape(int w, int h)
@@ -156,21 +170,40 @@ void parsekey(unsigned char key, int x, int y)
 	}
 }
 
-void parsekey_special(int key, int x, int y)
+void parsekey_specialDOWN(int key, int x, int y)
 {
 	switch (key)
 	{
 	case GLUT_KEY_UP:
-		g_vEye += (g_vLook)*0.05f;
+		MOVE_UP = true;
 		break;
 	case GLUT_KEY_DOWN:
-		g_vEye -= (g_vLook)*0.05f;
+		MOVE_DOWN = true;
 		break;
 	case GLUT_KEY_RIGHT:
-		g_vEye += (g_vRight)*0.05f;
+		MOVE_RIGHT = true;
 		break;
 	case GLUT_KEY_LEFT:	
-		g_vEye -= (g_vRight)*0.05f;
+		MOVE_LEFT = true;
+		break;
+	}
+}
+
+void parsekey_specialUP(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		MOVE_UP = false;
+		break;
+	case GLUT_KEY_DOWN:
+		MOVE_DOWN = false;
+		break;
+	case GLUT_KEY_RIGHT:
+		MOVE_RIGHT = false;
+		break;
+	case GLUT_KEY_LEFT:
+		MOVE_LEFT = false;
 		break;
 	}
 }
@@ -233,7 +266,8 @@ int main(int arg, char** argv)
 	glutCreateWindow("Practice 1: Creating an Octree");
 	glutDisplayFunc(display);
 	glutKeyboardFunc(parsekey);
-	glutSpecialFunc(parsekey_special);
+	glutSpecialFunc(parsekey_specialDOWN);
+	glutSpecialUpFunc(parsekey_specialUP);
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
 	glutMouseFunc(mouse);
