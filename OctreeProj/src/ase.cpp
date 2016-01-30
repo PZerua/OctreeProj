@@ -53,14 +53,15 @@ bool CASEModel::load(const char* filename)
 	return true;
 }
 
-void CASEModel::render() const
+void CASEModel::render(const vector<triangle> &triangles) const
 {	
 	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 	glBegin(GL_TRIANGLES);
-	for (unsigned i=0;i<m_triangles.size();i++)
+	glColor3f(1.0f, 1.0f, 0.0f);
+	for (unsigned i=0;i<triangles.size();i++)
 	{
-		const triangle & t = m_triangles[i];
+		const triangle & t = triangles[i];
 		/*
 		vector3 normal;
 		normal = cross(
@@ -71,6 +72,7 @@ void CASEModel::render() const
 		
 		glNormal3fv(normal);
 		*/
+		
 		glVertex3fv(m_vertices[t.a]);
 		glVertex3fv(m_vertices[t.b]);
 		glVertex3fv(m_vertices[t.c]);
@@ -106,7 +108,7 @@ void CASEModel::createOctree()
 	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, (minmax[1].y - minmax[0].y) / 2, (minmax[1].z - minmax[0].z) / 2);
 	vector3f origin = (minmax[0] + minmax[1]) / 2.0f;
 
-	_octree = new Octree(origin, hDimension, 0, 1000);
+	_octree = new Octree(origin, hDimension, 0, 1000, NULL);
 	_octree->createCBox(minmax[0], minmax[1]);
 	_octree->insert(m_triangles);
 	_octree->makeOctree(m_vertices);

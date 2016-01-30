@@ -24,7 +24,7 @@ public:
 	bool load(const char* filename);
 
 	// gl render
-	void render() const;
+	void render(const vector<triangle> &triangles) const;
 	Octree * getOctree();
 
 protected:

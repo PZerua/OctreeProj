@@ -1,12 +1,13 @@
 #include "Octree.h"
 
-Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &density)
+Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &density, Octree *pointerToFather)
 {
 	_origin = origin;
 	_hDimention = hDimension;
 	_box = NULL;
 	_density = density;
 	_level = level;
+	_pointerToFather = pointerToFather;
 	for (int i = 0; i < 8; i++)
 	{
 		_children[i] = NULL;
@@ -54,7 +55,7 @@ void Octree::makeOctree(const vector<vector3f> &vertices)
 {
 	vector<triangle> trianglesPerOctant[8];
 
-	for (int i = 0; i < _triangles.size(); i++)
+	for (unsigned i = 0; i < _triangles.size(); i++)
 	{
 		vector3f firstVertex = vertices[_triangles[i].a];
 		int position = getOctant(firstVertex);
@@ -77,9 +78,9 @@ void Octree::makeOctree(const vector<vector3f> &vertices)
 				newOrigin.x += _hDimention.x / (i & 0x04 ? 2.0 : -2.0);
 				newOrigin.y += _hDimention.y / (i & 0x02 ? 2.0 : -2.0);
 				newOrigin.z += _hDimention.z / (i & 0x01 ? 2.0 : -2.0);
-				_children[i] = new Octree(newOrigin, _hDimention / 2.0, _level + 1, density);
+				_children[i] = new Octree(newOrigin, _hDimention / 2.0, _level + 1, density, this);
 				_children[i]->insert(trianglesPerOctant[i]);
-				_children[i]->createCBox(_origin + _hDimention, _origin - _hDimention);
+				_children[i]->createCBox(newOrigin + _hDimention / 2.0, newOrigin - _hDimention / 2.0);
 				_children[i]->makeOctree(vertices);
 			}
 				
@@ -104,3 +105,17 @@ Octree * Octree::getChild(int i)
 	return _children[i];
 }
 
+int Octree::getLevel()
+{
+	return _level;
+}
+
+vector<triangle> Octree::getTriangles()
+{
+	return _triangles;
+}
+
+Octree *Octree::getPointerToFather()
+{
+	return _pointerToFather;
+}

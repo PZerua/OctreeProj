@@ -27,3 +27,5 @@
 
 /Debug
 /OctreeProj/Debug
+/.vs
+*.sdf

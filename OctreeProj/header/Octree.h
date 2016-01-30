@@ -6,7 +6,7 @@
 class Octree
 {
 public:
-	Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &density);
+	Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &density, Octree *pointerToFather);
 	~Octree();
 	int getBoxContainsPoint(const vector3f &point);
 	bool isLeaf();
@@ -16,7 +16,9 @@ public:
 	void makeOctree(const vector<vector3f> &vertices);
 	short getOctant(const vector3f &vertex);
 	Octree * getChild(int i);
-	
+	int getLevel();
+	vector<triangle> getTriangles();
+	Octree *getPointerToFather();
 
 private:
 	vector3f _origin;
@@ -26,4 +28,5 @@ private:
 	ContainerBox *_box;
 	int _level;
 	int _density;
+	Octree *_pointerToFather;
 };

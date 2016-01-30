@@ -96,9 +96,9 @@ void display(void)
 	//render here
 
 	// draw 3d model
-	g_model.render();
+	g_model.render(octr->getTriangles());
 	if (octr != NULL)
-		octr->renderBox(vector3f(0.0, 1.0, 0.0));
+		octr->renderBox(vector3f(0.0, 0.0, 1.0));
 	// ...
 	//glutWireCube(5);
 	// dibuixar un cub on cada banda té 1 de llarg
@@ -125,7 +125,14 @@ void parsekey(unsigned char key, int x, int y)
 		//Tecla ESC
 		case 27: exit(0); break;
 		//Tecla Enter
-		case 13: break;
+		case 13: 
+			while(octr->getPointerToFather() != NULL)
+				octr = octr->getPointerToFather();
+			break;
+		case 8:
+			if (octr->getPointerToFather() != NULL)
+				octr = octr->getPointerToFather();
+			break;
 		/*
 		//Teclas de 0 a 7
 		case 48: break;
@@ -137,14 +144,14 @@ void parsekey(unsigned char key, int x, int y)
 		case 54: break;
 		case 55: break;*/
 	}
-	if (key >= 48 & key <= 55) {
+	if (key >= 48 && key <= 55) {
 		/*for
 			if
 				=true
 			else
 				=false*/
-		cout << "KEY: " << (key - 48) << endl;
-		octr = octr->getChild(key - 48);
+		if (octr->getChild(key - 48) != NULL)
+			octr = octr->getChild(key - 48);
 		//cout << "Octree: " << oct. << endl;
 	}
 }
