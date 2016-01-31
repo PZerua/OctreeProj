@@ -158,6 +158,7 @@
     <ClInclude Include="header\header.h" />
     <ClInclude Include="header\matrix4x4f.h" />
     <ClInclude Include="header\Octree.h" />
+    <ClInclude Include="header\ray.h" />
     <ClInclude Include="header\text.h" />
     <ClInclude Include="header\vector3f.h" />
   </ItemGroup>

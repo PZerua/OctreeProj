@@ -55,5 +55,4 @@ float distance(const vector3f &v1, const vector3f &v2);
 float dotProduct(const vector3f &v1,  const vector3f &v2 );
 vector3f crossProduct(const vector3f &v1, const vector3f &v2);
 
-
 #endif // _VECTOR3F_H_

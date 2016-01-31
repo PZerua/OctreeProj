@@ -16,6 +16,10 @@
 #define MIDDLEMOUSE 1
 #define RIGHTMOUSE 2
 
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
+
+
 using namespace std;
 
 class triangle

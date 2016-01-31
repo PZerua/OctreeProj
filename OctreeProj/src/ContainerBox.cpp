@@ -12,7 +12,7 @@ ContainerBox::~ContainerBox()
 
 }
 
-void ContainerBox::render(vector3f color)
+void ContainerBox::render(vector3f color, Ray &ray)
 {
 	glBegin(GL_LINES);
 
@@ -21,7 +21,14 @@ void ContainerBox::render(vector3f color)
 
 	//cout << "MAX: " << _maxCorner.x << " " << _maxCorner.y << " " << _maxCorner.z << endl;
 	//cout << "MIN: " << _minCorner.x << " " << _minCorner.y << " " << _minCorner.z << endl;
+	
+	glColor3f(1.0f, 0.0f, 0.0f);
+	//cout << "origin :" << ray.origin.x << " " << ray.origin.y << " " << ray.origin.z << endl;
+	//cout << "end :" << ray.end.x << " " << ray.end.y << " " << ray.end.z << endl;
 
+	glVertex3fv(ray.origin);
+	glVertex3fv(ray.end);
+	/*
 	// FLOOR
 	glVertex3f(_minCorner.x, _minCorner.y, _minCorner.z);
 	glVertex3f(_maxCorner.x, _minCorner.y, _minCorner.z);
@@ -62,7 +69,7 @@ void ContainerBox::render(vector3f color)
 	glVertex3f(_minCorner.x, _minCorner.y, _maxCorner.z);
 	
 	glColor3f(1.0f, 1.0f, 1.0f);
-
+	*/
 	glEnd();
 }
 

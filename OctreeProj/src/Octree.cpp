@@ -12,6 +12,13 @@ Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &le
 	{
 		_children[i] = NULL;
 	}
+	_foundInter = false;
+}
+
+Octree::~Octree()
+{
+	for (int i = 0; i < 8; i++)
+		delete _children[i];
 }
 
 bool Octree::isLeaf()
@@ -22,7 +29,7 @@ bool Octree::isLeaf()
 	return true;
 }
 
-void Octree::insert(vector<triangle> triangles)
+void Octree::insert(vector<triangle *> triangles)
 {
 	_triangles = triangles;
 
@@ -33,17 +40,9 @@ void Octree::insert(vector<triangle> triangles)
 	*/
 }
 
-void Octree::renderBox(vector3f color)
+void Octree::renderBox(vector3f color, Ray &ray)
 {
-	/*
-	_box->render( color );
-	for (int i = 0; i < 8; i++)
-	{
-		if (_children[i] != NULL)
-			_children[i]->renderBox(color + vector3f(0.1, -0.2, 0.1));
-	}
-	*/
-	_box->render(color);
+	_box->render(color, ray);
 }
 
 void Octree::createCBox(const vector3f &minCorner, const vector3f &maxCorner)
@@ -53,27 +52,22 @@ void Octree::createCBox(const vector3f &minCorner, const vector3f &maxCorner)
 
 void Octree::makeOctree(const vector<vector3f> &vertices)
 {
-	vector<triangle> trianglesPerOctant[8];
+	vector<triangle *> trianglesPerOctant[8];
 
 	for (unsigned i = 0; i < _triangles.size(); i++)
 	{
-		vector3f firstVertex = vertices[_triangles[i].a];
+		vector3f firstVertex = vertices[_triangles[i]->a];
 		int position = getOctant(firstVertex);
 		trianglesPerOctant[position].push_back(_triangles[i]);
 	}
-	//cout << endl <<  "LEVEL: " << _level << endl;
-	//cout << "TRIANGLES SIZE: " << _triangles.size() << endl << endl;
 	if ((_level + 1 < 8))
 	{
 		int density = 0;
 		for (int i = 0; i < 8; i++)
 		{
 			density = (trianglesPerOctant[i].size() * _density) / _triangles.size();
-			/*cout << "TRIANGLES PER OCTANT: " << i << " is : " << trianglesPerOctant[i].size() << endl;
-			cout << "density " << density << endl;*/
 			if (density >= 1)
 			{
-				//cout << "NEW CHILD" << endl;
 				vector3f newOrigin = _origin;
 				newOrigin.x += _hDimention.x / (i & 0x04 ? 2.0 : -2.0);
 				newOrigin.y += _hDimention.y / (i & 0x02 ? 2.0 : -2.0);
@@ -83,11 +77,8 @@ void Octree::makeOctree(const vector<vector3f> &vertices)
 				_children[i]->createCBox(newOrigin + _hDimention / 2.0, newOrigin - _hDimention / 2.0);
 				_children[i]->makeOctree(vertices);
 			}
-				
 		}
 	}
-	//cout << endl << "Volvemos al padre" << endl;
-	//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 short Octree::getOctant(const vector3f &vertex)
@@ -110,7 +101,7 @@ int Octree::getLevel()
 	return _level;
 }
 
-vector<triangle> Octree::getTriangles()
+vector<triangle *> Octree::getTriangles()
 {
 	return _triangles;
 }
@@ -118,4 +109,73 @@ vector<triangle> Octree::getTriangles()
 Octree *Octree::getPointerToFather()
 {
 	return _pointerToFather;
+}
+
+bool Octree::isIntersection(Ray &ray, const vector<vector3f> &vertices)
+{
+	if (!isLeaf())
+	{
+		_foundInter = false;
+		for (int i = 0; i < 8; i++)
+		{
+			if (_children[i] != NULL)
+				_foundInter = _children[i]->isIntersection(ray, vertices);
+			if (_foundInter)
+				break;
+		}
+	}
+	else
+	{
+		for (unsigned i = 0; i < _triangles.size(); i++)
+		{
+			vector3f v0 = vertices[_triangles[i]->a];
+			vector3f v1 = vertices[_triangles[i]->b];
+			vector3f v2 = vertices[_triangles[i]->c];
+			vector3f point = ray.origin;
+			vector3f dir = ray.end - ray.origin;
+			_foundInter = isIntersectionTri(v0, v1, v2, point, dir);
+			if (_foundInter)
+				return _foundInter;
+		}
+		return false;
+	}
+	return _foundInter;
+}
+
+bool Octree::isIntersectionTri(vector3f &v0, vector3f &v1, vector3f &v2, vector3f &point, vector3f &dir)
+{
+	float a, f, u, v, t;
+
+	vector3f e1 = v1 - v0;
+	vector3f e2 = v2 - v0;
+
+	vector3f h = crossProduct(dir, e2);
+	a = dotProduct(e1, h);
+
+	if (a > -0.00001 && a < 0.00001)
+		return(false);
+
+	f = 1 / a;
+	vector3f s = point - v0;
+	u = f * (dotProduct(s, h));
+
+	if (u < 0.0 || u > 1.0)
+		return(false);
+
+	vector3f q = crossProduct(s, e1);
+	v = f * dotProduct(dir, q);
+
+	if (v < 0.0 || u + v > 1.0)
+		return(false);
+
+	// at this stage we can compute t to find out where
+	// the intersection point is on the line
+	t = f * dotProduct(e2, q);
+
+	if (t > 0.00001) // ray intersection
+		return(true);
+
+	else // this means that there is a line intersection
+		 // but not a ray intersection
+		return (false);
 }

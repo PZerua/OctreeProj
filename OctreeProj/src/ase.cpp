@@ -5,7 +5,7 @@
 
 CASEModel::CASEModel()
 {
-
+	_octree = NULL;
 }
 
 bool CASEModel::load(const char* filename)
@@ -53,15 +53,15 @@ bool CASEModel::load(const char* filename)
 	return true;
 }
 
-void CASEModel::render(const vector<triangle> &triangles) const
-{	
+void CASEModel::render(const vector<triangle *> &triangles) const
+{
 	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.0f, 1.0f, 0.0f);
 	for (unsigned i=0;i<triangles.size();i++)
 	{
-		const triangle & t = triangles[i];
+		const triangle * t = triangles[i];
 		/*
 		vector3 normal;
 		normal = cross(
@@ -73,17 +73,15 @@ void CASEModel::render(const vector<triangle> &triangles) const
 		glNormal3fv(normal);
 		*/
 		
-		glVertex3fv(m_vertices[t.a]);
-		glVertex3fv(m_vertices[t.b]);
-		glVertex3fv(m_vertices[t.c]);
+		glVertex3fv(m_vertices[t->a]);
+		glVertex3fv(m_vertices[t->b]);
+		glVertex3fv(m_vertices[t->c]);
 	}
 	glEnd();
 }
 
 vector3f *CASEModel::loadMinMax()
 {
-	static vector3f minmax[2];
-
 	auto min_max_X = minmax_element(m_vertices.begin(), m_vertices.end(),
 		[](vector3f left, vector3f right) {return left.x < right.x; });
 	auto min_max_Y = minmax_element(m_vertices.begin(), m_vertices.end(),
@@ -91,29 +89,47 @@ vector3f *CASEModel::loadMinMax()
 	auto min_max_Z = minmax_element(m_vertices.begin(), m_vertices.end(),
 		[](vector3f left, vector3f right) {return left.z < right.z; });
 
-	minmax[0].x = min_max_X.first->x;
-	minmax[0].y = min_max_Y.first->y;
-	minmax[0].z = min_max_Z.first->z;
+	_minmax[0].x = min_max_X.first->x;
+	_minmax[0].y = min_max_Y.first->y;
+	_minmax[0].z = min_max_Z.first->z;
 
-	minmax[1].x = min_max_X.second->x;
-	minmax[1].y = min_max_Y.second->y;
-	minmax[1].z = min_max_Z.second->z;
+	_minmax[1].x = min_max_X.second->x;
+	_minmax[1].y = min_max_Y.second->y;
+	_minmax[1].z = min_max_Z.second->z;
 
-	return minmax;
+	//cout << "MIN: " << _minmax[0].x << " " << _minmax[0].y << " " << _minmax[0].z << endl;
+	//cout << "MAX: " << _minmax[1].x << " " << _minmax[1].y << " " << _minmax[1].z << endl;
+
+	return _minmax;
 }
 
 void CASEModel::createOctree()
 {
+	vector<triangle *> trianglesPointer;
+	for (unsigned i = 0; i < m_triangles.size(); i++)
+	{
+		trianglesPointer.push_back(&m_triangles[i]);
+	}
 	vector3f *minmax = loadMinMax();
 	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, (minmax[1].y - minmax[0].y) / 2, (minmax[1].z - minmax[0].z) / 2);
 	vector3f origin = (minmax[0] + minmax[1]) / 2.0f;
 
 	_octree = new Octree(origin, hDimension, 0, 1000, NULL);
 	_octree->createCBox(minmax[0], minmax[1]);
-	_octree->insert(m_triangles);
+	_octree->insert(trianglesPointer);
 	_octree->makeOctree(m_vertices);
 }
 
-Octree * CASEModel::getOctree() {
+Octree *CASEModel::getOctree() {
 	return _octree;
+}
+
+vector3f *CASEModel::getMinMax()
+{
+	return _minmax;
+}
+
+vector<vector3f> &CASEModel::getVertices()
+{
+	return m_vertices;
 }

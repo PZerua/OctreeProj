@@ -56,5 +56,8 @@
     <ClInclude Include="header\Octree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="header\ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

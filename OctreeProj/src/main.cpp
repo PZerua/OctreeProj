@@ -2,6 +2,7 @@
 #include "ase.h"
 #include "vector3f.h"
 #include "matrix4x4f.h"
+#include "ray.h"
 
 // global variables
 vector3f g_vEye(0,1,-5);
@@ -10,17 +11,19 @@ vector3f g_vRight(-1,0,0);
 vector3f g_vUp(0,1,0);
 int g_buttons[3];
 int g_mouse_x,g_mouse_y;
+int rClickX = 0, rClickY = 0;
 int g_width, g_height;
 
 bool MOVE_UP = false;
 bool MOVE_DOWN = false;
 bool MOVE_RIGHT = false;
 bool MOVE_LEFT = false;
+bool renderRay = false;
 
 // the mesh model
 CASEModel g_model;
 Octree *octr;
-
+Ray ray;
 //2k8
 
 void drawString(int x, int y, const char* string)
@@ -38,7 +41,7 @@ void drawString(int x, int y, const char* string)
 void help()
 {
 	glDisable(GL_LIGHTING);
-	// prepare 2d viewport
+	// prepare viewport
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glMatrixMode(GL_PROJECTION);
@@ -101,27 +104,55 @@ void display(void)
 	//render here
 
 	// draw 3d model
-	g_model.render(octr->getTriangles());
 	if (octr != NULL)
-		octr->renderBox(vector3f(0.0, 0.0, 1.0));
-	// ...
-	//glutWireCube(5);
-	// dibuixar un cub on cada banda té 1 de llarg
-	//glDisable(GL_LIGHTING);
-	help();
+	{
+		g_model.render(octr->getTriangles());
+		octr->renderBox(vector3f(0.0, 0.0, 1.0), ray);
+	}
 
+	//cout << "ORIGIN: " << ray.origin.x << " " << ray.origin.y << " "  << ray.origin.z  << endl;
+	//cout << "END: " << ray.end.x << " " << ray.end.y << " " << ray.end.z << endl;
+
+	if (renderRay)
+	{
+
+		double matModelView[16], matProjection[16];
+		int viewport[4];
+
+		// get matrix and viewport:
+		glGetDoublev(GL_MODELVIEW_MATRIX, matModelView);
+		glGetDoublev(GL_PROJECTION_MATRIX, matProjection);
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		// window pos of mouse, Y is inverted on Windows
+		double winX = (double)rClickX;
+		double winY = viewport[3] - (double)rClickY;
+
+		GLdouble sX, sY, sZ;
+
+		// get point on the 'near' plane (third param is set to 0.0)
+		gluUnProject(winX, winY, 0.0, matModelView, matProjection,
+			viewport, &sX, &sY, &sZ);
+
+		GLdouble gX, gY, gZ;
+
+		// get point on the 'far' plane (third param is set to 1.0)
+		gluUnProject(winX, winY, 1.0, matModelView, matProjection,
+			viewport, &gX, &gY, &gZ);
+
+		ray.origin = vector3f(sX, sY, sZ);
+		ray.end = vector3f(gX, gY, gZ);
+
+		if (octr->isIntersection(ray, g_model.getVertices()))
+			cout << "INTERSECTING!!" << endl;
+		else cout << "ITS NOT!! " << endl;
+	}
+
+	help();
 
 	glFlush();
 	glutSwapBuffers();
 
-	if (MOVE_UP)
-		g_vEye += (g_vLook)*0.05f;
-	if (MOVE_DOWN)
-		g_vEye -= (g_vLook)*0.05f;
-	if (MOVE_RIGHT)
-		g_vEye += (g_vRight)*0.05f;
-	if (MOVE_LEFT)
-		g_vEye -= (g_vRight)*0.05f;
 }
 
 void reshape(int w, int h)
@@ -159,14 +190,8 @@ void parsekey(unsigned char key, int x, int y)
 		case 55: break;*/
 	}
 	if (key >= 48 && key <= 55) {
-		/*for
-			if
-				=true
-			else
-				=false*/
 		if (octr->getChild(key - 48) != NULL)
 			octr = octr->getChild(key - 48);
-		//cout << "Octree: " << oct. << endl;
 	}
 }
 
@@ -211,6 +236,15 @@ void parsekey_specialUP(int key, int x, int y)
 void idle()
 {
 	display();
+
+	if (MOVE_UP)
+		g_vEye += (g_vLook)*0.05f;
+	if (MOVE_DOWN)
+		g_vEye -= (g_vLook)*0.05f;
+	if (MOVE_RIGHT)
+		g_vEye += (g_vRight)*0.05f;
+	if (MOVE_LEFT)
+		g_vEye -= (g_vRight)*0.05f;
 }
 
 void motion(int x, int y)
@@ -236,9 +270,16 @@ void motion(int x, int y)
 		}
 
 	}
+	else if (g_buttons[RIGHTMOUSE] == 1)
+	{
+		renderRay = true;
+		rClickX = x;
+		rClickY = y;
+	}
 
 	g_mouse_x = x;
 	g_mouse_y = y;
+
 }
 
 void mouse(int button, int state, int x, int y)
@@ -262,7 +303,7 @@ int main(int arg, char** argv)
 {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowPosition(200, 0);
-	glutInitWindowSize(640, 480);
+	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	glutCreateWindow("Practice 1: Creating an Octree");
 	glutDisplayFunc(display);
 	glutKeyboardFunc(parsekey);

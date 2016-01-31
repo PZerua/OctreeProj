@@ -19,19 +19,21 @@ class CASEModel
 public:
 	CASEModel();
 	vector3f *loadMinMax();
+	vector3f *getMinMax();
 	void createOctree();
 	// primary load model method
 	bool load(const char* filename);
 
 	// gl render
-	void render(const vector<triangle> &triangles) const;
+	void render(const vector<triangle *> &triangles) const;
 	Octree * getOctree();
+	vector<vector3f> &getVertices();
 
 protected:
 	std::vector<vector3f> m_vertices;
 	std::vector<triangle> m_triangles;
 	Octree *_octree;
-	Octree * getOctree(const int &level, const int &depth);
+	vector3f _minmax[2];
 };
 
 
