@@ -2,7 +2,6 @@
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -25,7 +24,10 @@
 *.out
 *.app
 
+# Temp Visual Files
+*.opensdf
+*.sdf
+*.suo
+
 /Debug
 /OctreeProj/Debug
-/.vs
-*.sdf
