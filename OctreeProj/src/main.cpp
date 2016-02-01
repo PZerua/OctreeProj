@@ -106,7 +106,7 @@ void display(void)
 	// draw 3d model
 	if (octr != NULL)
 	{
-		g_model.render(octr->getTriangles());
+		g_model.render(octr->getTriangles(), octr->getTriangInter());
 		octr->renderBox(vector3f(0.0, 0.0, 1.0), ray);
 	}
 

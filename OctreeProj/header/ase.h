@@ -25,7 +25,7 @@ public:
 	bool load(const char* filename);
 
 	// gl render
-	void render(const vector<triangle *> &triangles) const;
+	void render(const vector<triangle *> &triangles, const vector3f &inter) const;
 	Octree * getOctree();
 	vector<vector3f> &getVertices();
 

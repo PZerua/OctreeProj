@@ -1,5 +1,7 @@
 #include "Octree.h"
 
+vector3f Octree::_intersection = vector3f(-1, -1, -1);
+
 Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &level, const int &density, Octree *pointerToFather)
 {
 	_origin = origin;
@@ -8,6 +10,7 @@ Octree::Octree(const vector3f &origin, const vector3f &hDimension, const int &le
 	_density = density;
 	_level = level;
 	_pointerToFather = pointerToFather;
+
 	for (int i = 0; i < 8; i++)
 	{
 		_children[i] = NULL;
@@ -135,7 +138,12 @@ bool Octree::isIntersection(Ray &ray, const vector<vector3f> &vertices)
 			vector3f dir = ray.end - ray.origin;
 			_foundInter = isIntersectionTri(v0, v1, v2, point, dir);
 			if (_foundInter)
+			{
+				_intersection = vector3f(_triangles[i]->a, _triangles[i]->b, _triangles[i]->c);
 				return _foundInter;
+			}
+			else _intersection = vector3f(-1, -1, -1);
+				
 		}
 		return false;
 	}
@@ -178,4 +186,9 @@ bool Octree::isIntersectionTri(vector3f &v0, vector3f &v1, vector3f &v2, vector3
 	else // this means that there is a line intersection
 		 // but not a ray intersection
 		return (false);
+}
+
+vector3f &Octree::getTriangInter()
+{
+	return _intersection;
 }

@@ -21,6 +21,7 @@ public:
 	int getLevel();
 	vector<triangle *> getTriangles();
 	Octree *getPointerToFather();
+	vector3f &getTriangInter();
 
 private:
 	vector3f _origin;
@@ -32,4 +33,5 @@ private:
 	int _density;
 	Octree *_pointerToFather;
 	bool _foundInter;
+	static vector3f _intersection;
 };

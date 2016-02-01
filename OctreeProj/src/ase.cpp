@@ -53,29 +53,37 @@ bool CASEModel::load(const char* filename)
 	return true;
 }
 
-void CASEModel::render(const vector<triangle *> &triangles) const
+void CASEModel::render(const vector<triangle *> &triangles, const vector3f &inter) const
 {
 	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
+	bool isIntersection = false;
+	//cout << inter.x << " " << inter.y << " " << inter.z << endl;
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.0f, 1.0f, 0.0f);
-	for (unsigned i=0;i<triangles.size();i++)
+	for (unsigned i=0; i<triangles.size(); i++)
 	{
 		const triangle * t = triangles[i];
-		/*
-		vector3 normal;
-		normal = cross(
-			m_vertices[t.b] - m_vertices[t.a],
-			m_vertices[t.c] - m_vertices[t.a]);
-		normal.normalize();
+
+		if (inter.x == t->a && inter.y == t->b && inter.z == t->c)
+			isIntersection = true;
+		else isIntersection = false;
+
+		if (isIntersection)
+		{
+			glColor3f(1.0f, 0.0f, 0.0f);
+			glVertex3fv(m_vertices[t->a]);
+			glVertex3fv(m_vertices[t->b]);
+			glVertex3fv(m_vertices[t->c]);
+		}
+		else
+		{
+			glColor3f(1.0f, 1.0f, 0.0f);
+			glVertex3fv(m_vertices[t->a]);
+			glVertex3fv(m_vertices[t->b]);
+			glVertex3fv(m_vertices[t->c]);
+		}
 
 		
-		glNormal3fv(normal);
-		*/
-		
-		glVertex3fv(m_vertices[t->a]);
-		glVertex3fv(m_vertices[t->b]);
-		glVertex3fv(m_vertices[t->c]);
 	}
 	glEnd();
 }
