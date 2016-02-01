@@ -10,6 +10,7 @@
 #include <vector>
 #include <thread>         // std::this_thread::sleep_for
 #include <chrono>         // std::chrono::seconds
+#include <string>
 
 // local defines
 #define LEFTMOUSE 0
@@ -22,6 +23,7 @@
 
 using namespace std;
 
+// Class triangle used to store indices
 class triangle
 {
 public:

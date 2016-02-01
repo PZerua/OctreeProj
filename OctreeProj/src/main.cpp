@@ -14,6 +14,7 @@ int g_mouse_x,g_mouse_y;
 int rClickX = 0, rClickY = 0;
 int g_width, g_height;
 
+// bools used to cast movement
 bool MOVE_UP = false;
 bool MOVE_DOWN = false;
 bool MOVE_RIGHT = false;
@@ -22,9 +23,10 @@ bool renderRay = false;
 
 // the mesh model
 CASEModel g_model;
+// the octree
 Octree *octr;
+// the ray
 Ray ray;
-//2k8
 
 void drawString(int x, int y, const char* string)
 {
@@ -48,22 +50,34 @@ void help()
 	glLoadIdentity();
 	gluOrtho2D(0, 1000, 0, 1000);
 
+	string xpos = to_string(octr->getTriangInter().x);
+	string ypos = to_string(octr->getTriangInter().y);
+	string zpos = to_string(octr->getTriangInter().z);
+	string tPicked = "Triangle picked: " + xpos + " " + ypos + " " + zpos;
+	string tChecked = "Number of triangles checked: " + to_string(octr->getTChecked());
+	string vChecked = "Number of nodes checked: " + to_string(octr->getNChecked());
+
+
 	drawString(690,10,"Press UP/DOWN/LEFT/RIGHT to navigate");
 	drawString(690,40,"Press LEFT BUTTON to perform looking");
+	drawString(690, 70, "Press RIGHT BUTTON to throw ray");
+	drawString(10, 70, vChecked.c_str());
+	drawString(10, 40, tChecked.c_str());
+	drawString(10, 10, tPicked.c_str());
+
+	octr->resetTChecked();
+	octr->resetNChecked();
 }
 
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_LIGHTING);
-	//glEnable(GL_LIGHT0);
-	//glShadeModel(GL_FLAT);
 
 	// setup camera
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90, 1.33, 1, 200);
+	gluPerspective(90, SCREEN_WIDTH/SCREEN_HEIGHT, 1, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -107,11 +121,8 @@ void display(void)
 	if (octr != NULL)
 	{
 		g_model.render(octr->getTriangles(), octr->getTriangInter());
-		octr->renderBox(vector3f(0.0, 0.0, 1.0), ray);
+		octr->renderBox(vector3f(0.0, 0.0, 1.0));
 	}
-
-	//cout << "ORIGIN: " << ray.origin.x << " " << ray.origin.y << " "  << ray.origin.z  << endl;
-	//cout << "END: " << ray.end.x << " " << ray.end.y << " " << ray.end.z << endl;
 
 	if (renderRay)
 	{
@@ -143,9 +154,8 @@ void display(void)
 		ray.origin = vector3f(sX, sY, sZ);
 		ray.end = vector3f(gX, gY, gZ);
 
-		if (octr->isIntersection(ray, g_model.getVertices()))
-			cout << "INTERSECTING!!" << endl;
-		else cout << "ITS NOT!! " << endl;
+		octr->isIntersection(ray, g_model.getVertices());
+
 	}
 
 	help();
@@ -178,16 +188,6 @@ void parsekey(unsigned char key, int x, int y)
 			if (octr->getPointerToFather() != NULL)
 				octr = octr->getPointerToFather();
 			break;
-		/*
-		//Teclas de 0 a 7
-		case 48: break;
-		case 49: break;
-		case 50: break;
-		case 51: break;
-		case 52: break;
-		case 53: break;
-		case 54: break;
-		case 55: break;*/
 	}
 	if (key >= 48 && key <= 55) {
 		if (octr->getChild(key - 48) != NULL)
@@ -236,7 +236,11 @@ void parsekey_specialUP(int key, int x, int y)
 void idle()
 {
 	display();
+}
 
+// Sets the camera position (checked every 16 ms => 1/60Hz)
+void moveCamera(int value)
+{
 	if (MOVE_UP)
 		g_vEye += (g_vLook)*0.05f;
 	if (MOVE_DOWN)
@@ -245,7 +249,9 @@ void idle()
 		g_vEye += (g_vRight)*0.05f;
 	if (MOVE_LEFT)
 		g_vEye -= (g_vRight)*0.05f;
+	glutTimerFunc(16, moveCamera, 0);
 }
+
 
 void motion(int x, int y)
 {
@@ -313,13 +319,12 @@ int main(int arg, char** argv)
 	glutIdleFunc(idle);
 	glutMouseFunc(mouse);
 	glutMotionFunc(motion);
+	glutTimerFunc(16, moveCamera, 0);
 
 	// load a model
-	//g_model.load("data\\teapot.ase");
 	g_model.load("data/knot.ase");
 	g_model.createOctree();
 	octr = g_model.getOctree();
-	//g_model.load("data\\terrain.ase");
 
 	glutSwapBuffers();
 	glutMainLoop();

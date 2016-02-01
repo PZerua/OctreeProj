@@ -10,7 +10,7 @@ public:
 	ContainerBox();
 	ContainerBox(const vector3f &minCorner, const vector3f &maxCorner);
 	~ContainerBox();
-	void render(vector3f color, Ray &ray);
+	void render(vector3f color);
 	void setMinMax(const vector3f &minCorner, const vector3f &maxCorner);
 	vector3f getMin();
 	vector3f getMax();

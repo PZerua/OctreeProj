@@ -1,5 +1,7 @@
 #include "ContainerBox.h"
 
+
+// Class used to draw boxes, in this case the Bounding Box and the box of each node of the octree
 ContainerBox::ContainerBox(const vector3f &minCorner, const vector3f &maxCorner)
 {
 	_minCorner = minCorner;
@@ -12,20 +14,12 @@ ContainerBox::~ContainerBox()
 
 }
 
-void ContainerBox::render(vector3f color, Ray &ray)
+void ContainerBox::render(vector3f color)
 {
 	glBegin(GL_LINES);
 
 	// Set Color
 	glColor3f(color.x, color.y, color.z);
-
-	//cout << "MAX: " << _maxCorner.x << " " << _maxCorner.y << " " << _maxCorner.z << endl;
-	//cout << "MIN: " << _minCorner.x << " " << _minCorner.y << " " << _minCorner.z << endl;
-	//cout << "origin :" << ray.origin.x << " " << ray.origin.y << " " << ray.origin.z << endl;
-	//cout << "end :" << ray.end.x << " " << ray.end.y << " " << ray.end.z << endl;
-
-	//glVertex3fv(ray.origin);
-	//glVertex3fv(ray.end);
 	
 	// FLOOR
 	glVertex3f(_minCorner.x, _minCorner.y, _minCorner.z);
@@ -71,6 +65,7 @@ void ContainerBox::render(vector3f color, Ray &ray)
 	glEnd();
 }
 
+// We need the min and max corner of the box
 void ContainerBox::setMinMax(const vector3f &minCorner, const vector3f &maxCorner)
 {
 	_minCorner = minCorner;

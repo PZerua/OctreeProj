@@ -14,7 +14,7 @@ public:
 	bool isLeaf();
 	void insert(vector<triangle *> triangles);
 	void createCBox(const vector3f &minCorner, const vector3f &maxCorner);
-	void renderBox(vector3f color, Ray &ray);
+	void renderBox(vector3f color);
 	void makeOctree(const vector<vector3f> &vertices);
 	short getOctant(const vector3f &vertex);
 	Octree * getChild(int i);
@@ -22,6 +22,10 @@ public:
 	vector<triangle *> getTriangles();
 	Octree *getPointerToFather();
 	vector3f &getTriangInter();
+	int getTChecked();
+	void resetTChecked();
+	int getNChecked();
+	void resetNChecked();
 
 private:
 	vector3f _origin;
@@ -34,4 +38,6 @@ private:
 	Octree *_pointerToFather;
 	bool _foundInter;
 	static vector3f _intersection;
+	static int _trianglesChecked;
+	static int _nodesChecked;
 };

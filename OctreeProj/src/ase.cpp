@@ -53,6 +53,7 @@ bool CASEModel::load(const char* filename)
 	return true;
 }
 
+// Render the model or the triangles contained in each node
 void CASEModel::render(const vector<triangle *> &triangles, const vector3f &inter) const
 {
 	glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -68,6 +69,7 @@ void CASEModel::render(const vector<triangle *> &triangles, const vector3f &inte
 			isIntersection = true;
 		else isIntersection = false;
 
+		// If its intersection, we render it in red
 		if (isIntersection)
 		{
 			glColor3f(1.0f, 0.0f, 0.0f);
@@ -75,6 +77,7 @@ void CASEModel::render(const vector<triangle *> &triangles, const vector3f &inte
 			glVertex3fv(m_vertices[t->b]);
 			glVertex3fv(m_vertices[t->c]);
 		}
+		// Else, we render it in yellow
 		else
 		{
 			glColor3f(1.0f, 1.0f, 0.0f);
@@ -82,12 +85,11 @@ void CASEModel::render(const vector<triangle *> &triangles, const vector3f &inte
 			glVertex3fv(m_vertices[t->b]);
 			glVertex3fv(m_vertices[t->c]);
 		}
-
-		
 	}
 	glEnd();
 }
 
+// Loads the min and max vertices of the figure
 vector3f *CASEModel::loadMinMax()
 {
 	auto min_max_X = minmax_element(m_vertices.begin(), m_vertices.end(),
@@ -105,14 +107,13 @@ vector3f *CASEModel::loadMinMax()
 	_minmax[1].y = min_max_Y.second->y;
 	_minmax[1].z = min_max_Z.second->z;
 
-	//cout << "MIN: " << _minmax[0].x << " " << _minmax[0].y << " " << _minmax[0].z << endl;
-	//cout << "MAX: " << _minmax[1].x << " " << _minmax[1].y << " " << _minmax[1].z << endl;
-
 	return _minmax;
 }
 
+// Creates and octree and sets the initial values
 void CASEModel::createOctree()
 {
+	// We save pointers of triangles to be more efficient
 	vector<triangle *> trianglesPointer;
 	for (unsigned i = 0; i < m_triangles.size(); i++)
 	{
@@ -120,8 +121,10 @@ void CASEModel::createOctree()
 	}
 	vector3f *minmax = loadMinMax();
 	vector3f hDimension((minmax[1].x - minmax[0].x) / 2, (minmax[1].y - minmax[0].y) / 2, (minmax[1].z - minmax[0].z) / 2);
+	// The origin is in the middle of min max
 	vector3f origin = (minmax[0] + minmax[1]) / 2.0f;
 
+	// We create the octree
 	_octree = new Octree(origin, hDimension, 0, 1000, NULL);
 	_octree->createCBox(minmax[0], minmax[1]);
 	_octree->insert(trianglesPointer);
